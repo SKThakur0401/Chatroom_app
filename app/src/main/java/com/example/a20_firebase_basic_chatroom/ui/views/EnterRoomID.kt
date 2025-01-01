@@ -1,0 +1,54 @@
+package com.example.a20_firebase_basic_chatroom.ui.views
+
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.navigation.fragment.findNavController
+import com.example.a20_firebase_basic_chatroom.R
+import com.example.a20_firebase_basic_chatroom.databinding.FragmentEnterRoomIDBinding
+import com.example.a20_firebase_basic_chatroom.utils.Constants.ROOM_ID
+
+class EnterRoomID : Fragment() {
+
+    private lateinit var binding: FragmentEnterRoomIDBinding
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        // Inflate the layout for this fragment
+        binding = FragmentEnterRoomIDBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        listener()
+    }
+
+    private fun listener(){
+        binding.btnEnterRoom.setOnClickListener {
+            val roomID = binding.etRoomID.text.toString()
+
+            if(roomID.isNotEmpty()){
+                val bundle = Bundle()
+                bundle.putString(ROOM_ID, roomID)
+                findNavController().navigate(R.id.action_enterRoomID_to_chatFragment, bundle)
+            } else{
+                Toast.makeText(requireContext(), "Enter a room ID", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        binding.btnSignout.setOnClickListener {
+            findNavController().navigate(R.id.action_enterRoomID_to_signupFragment)
+        }
+    }
+
+}

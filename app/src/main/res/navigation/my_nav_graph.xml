@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_nav_graph"
+    app:startDestination="@id/signupFragment">
+    <fragment
+        android:id="@+id/signupFragment"
+        android:name="com.example.a20_firebase_basic_chatroom.ui.views.SignupFragment"
+        android:label="fragment_signup"
+        tools:layout="@layout/fragment_signup" >
+        <action
+            android:id="@+id/action_signupFragment_to_enterRoomID"
+            app:destination="@id/enterRoomID"
+            app:popUpTo="@id/signupFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_signupFragment_to_loginFragment2"
+            app:destination="@id/loginFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginFragment2"
+        android:name="com.example.a20_firebase_basic_chatroom.ui.views.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment2_to_enterRoomID"
+            app:destination="@id/enterRoomID"
+            app:popUpTo="@id/signupFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_loginFragment2_to_signupFragment"
+            app:destination="@id/signupFragment"
+            app:popUpTo="@id/signupFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/enterRoomID"
+        android:name="com.example.a20_firebase_basic_chatroom.ui.views.EnterRoomID"
+        android:label="fragment_enter_room_i_d"
+        tools:layout="@layout/fragment_enter_room_i_d" >
+        <action
+            android:id="@+id/action_enterRoomID_to_chatFragment"
+            app:destination="@id/chatFragment" />
+        <action
+            android:id="@+id/action_enterRoomID_to_signupFragment"
+            app:destination="@id/signupFragment"
+            app:popUpTo="@id/enterRoomID"
+            app:popUpToInclusive="true" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.example.a20_firebase_basic_chatroom.ui.views.ChatFragment"
+        android:label="fragment_chat"
+        tools:layout="@layout/fragment_chat" >
+        <action
+            android:id="@+id/action_chatFragment_to_enterRoomID"
+            app:destination="@id/enterRoomID" />
+    </fragment>
+</navigation>
