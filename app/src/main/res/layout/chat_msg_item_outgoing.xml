@@ -13,10 +13,10 @@
 
 
     <TextView
-        android:id="@+id/textMessageIncoming"
+        android:id="@+id/textMessageOutgoing"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_speech_bubble_incoming"
+        android:background="@drawable/bg_speech_bubble_outgoing"
         android:lineSpacingExtra="2dp"
         android:paddingLeft="20dp"
         android:paddingTop="4dp"
@@ -26,7 +26,7 @@
         tools:text="Hi, How are you?"
         android:textColor="@color/Black_2"
         android:textSize="15dp"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_max="wrap"
         app:layout_constraintWidth_percent="0.8" />

@@ -1,5 +1,6 @@
 package com.example.a20_firebase_basic_chatroom.ui.views
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -19,12 +20,19 @@ import javax.inject.Inject
 class SignupFragment : Fragment() {
 
     @Inject
-    private lateinit var tokenManager: TokenManager
+    lateinit var tokenManager: TokenManager
 
     private lateinit var binding : FragmentSignupBinding
     private lateinit var dbRef : DatabaseReference
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if(tokenManager.isUserSignedIn()){
+            findNavController().navigate(R.id.action_signupFragment_to_enterRoomID)
+        }
     }
 
     override fun onCreateView(

@@ -23,7 +23,7 @@ import javax.inject.Inject
 class LoginFragment : Fragment() {
 
     @Inject
-    private lateinit var tokenManager: TokenManager
+    lateinit var tokenManager: TokenManager
 
     private lateinit var binding : FragmentLoginBinding
     private lateinit var dbRef : DatabaseReference

@@ -13,6 +13,7 @@ pluginManagement {
 
     plugins {
         id("org.jetbrains.kotlin.android") version "1.9.24"
+        id("org.jetbrains.kotlin.kapt") version "1.9.24"
         // Other plugins...
     }
 }

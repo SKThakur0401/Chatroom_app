@@ -3,8 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.dagger.hilt)
-    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -54,6 +54,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.databinding.runtime)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

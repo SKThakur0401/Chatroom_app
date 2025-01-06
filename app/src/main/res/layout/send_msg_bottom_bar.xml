@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="70dp"
-    android:background="@color/white"
+    android:background="#FDF6EE"
     >
 
 
@@ -12,14 +12,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/et_background"
+        android:layout_marginHorizontal="10dp"
+        android:background="@drawable/et_send_text"
         android:drawableStart="@drawable/drawable_start_password"
         android:drawablePadding="4dp"
         android:hint="Type a message"
-        android:inputType="textPassword"
         android:padding="10dp"
         android:singleLine="true"
-        android:textColor="@color/white"
+        android:textColor="@color/Black_4"
         android:textColorHint="@color/Black_7"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
