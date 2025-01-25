@@ -12,11 +12,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:layout_marginHorizontal="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="5dp"
         android:background="@drawable/et_send_text"
         android:drawableStart="@drawable/drawable_start_password"
         android:drawablePadding="4dp"
-        android:hint="Type a message"
+        android:hint="@string/type_a_message"
         android:padding="10dp"
         android:singleLine="true"
         android:textColor="@color/Black_4"
@@ -26,13 +27,17 @@
         app:layout_constraintEnd_toStartOf="@+id/btnSendMsg"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <ImageButton
         android:id="@+id/btnSendMsg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Send"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/bg_send_btn"
+        android:scaleType="center"
+        android:src="@drawable/btn_send_svg"
         app:layout_constraintBottom_toBottomOf="@+id/etTypeMessage"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/etTypeMessage" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

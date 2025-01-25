@@ -38,6 +38,14 @@
         <item name="android:background">@color/Black</item>
     </style>
 
+    <style name="chat_msg_time">
+        <item name="android:fontFamily">@font/roboto_thin</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
 
     <style name="bg_dialog_reg_login">
         <item name="background">@drawable/bg_login_and_reg_frag</item>

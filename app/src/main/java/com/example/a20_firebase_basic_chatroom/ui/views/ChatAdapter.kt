@@ -9,6 +9,9 @@ import androidx.viewbinding.ViewBinding
 import com.example.a20_firebase_basic_chatroom.data.dataModels.Message
 import com.example.a20_firebase_basic_chatroom.databinding.ChatMsgItemBinding
 import com.example.a20_firebase_basic_chatroom.databinding.ChatMsgItemOutgoingBinding
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ChatAdapter(private val currentUserId: String) :
     ListAdapter<Message, ChatAdapter.ChatAdapterViewHolder>(DiffUtil()) {
@@ -18,9 +21,14 @@ class ChatAdapter(private val currentUserId: String) :
 
         @SuppressLint("SetTextI18n")
         fun bind(message: Message) {
+
+            val formattedDate = formatTimestamp(message.timestamp)
+
             when (binding) {
                 is ChatMsgItemBinding -> {
-                    binding.textMessageIncoming.text = message.senderName + "\n" + message.message
+                    binding.tvSenderName.text = message.senderName
+                    binding.textMessageIncoming.text = message.message
+                    binding.tvTime.text = formattedDate
                 }
                 is ChatMsgItemOutgoingBinding -> {
                     binding.textMessageOutgoing.text = message.message
@@ -49,6 +57,12 @@ class ChatAdapter(private val currentUserId: String) :
         } else {
             VIEW_TYPE_INCOMING
         }
+    }
+
+    fun formatTimestamp(timestamp: Long): String {
+        val date = Date(timestamp)
+        val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault()) // Example: 01:45 PM
+        return formatter.format(date)
     }
 
     class DiffUtil : androidx.recyclerview.widget.DiffUtil.ItemCallback<Message>() {
