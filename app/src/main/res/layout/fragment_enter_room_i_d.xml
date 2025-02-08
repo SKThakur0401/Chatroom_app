@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    NOTE: I should have written all the "styling" code in the "@styles/" folder (Theme) ... Because all these
+    styling will be reused for registration fragment!! I should have done all styling in "styles" folder
+    and then just have to write 1-line ! :          style= "@style/btn_login_reg"  just like I did for the
+    button!(See the code of AppCompatButton, just one line code, it is a better practice to use "style" folder,
+    because it provides uniformity in style and I don't
+    have to worry about providing similar background/ padding/ textSize/ textColor/margin
+     for both "registration and login" fragment,
+    both will have everything same... since both will use same folder
+
+    Also! There are 2 themes folder, one for light mode other for dark, make sure to write theme for both!!
+    U can create custom styling for both dark and light mode! Another advantage of theme-styling..
+-->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.views.EnterRoomID"
+    style="@style/bg_login_reg">
+
+
+    <TextView
+        android:id="@+id/tvLogin"
+        android:text="Enter a Room"
+        style="@style/tv_title_login_reg"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Create a new room or enter any Existing Room"
+        android:textAlignment="center"
+        android:textColor="@color/Black_6"
+        android:textSize="15sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvLogin" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="20dp"
+
+        android:background="@drawable/bg_login_and_reg_frag"
+        android:orientation="vertical"
+        android:padding="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvLogin">
+
+
+
+
+
+        <EditText
+            android:id="@+id/etRoomID"
+            android:textColor="@color/white"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/et_background"
+            android:drawableStart="@drawable/drawable_start_password"
+            android:drawablePadding="4dp"
+            android:hint="Room ID"
+            android:inputType="textPassword"
+            android:padding="10dp"
+            android:textColorHint="@color/Black_7"
+            android:textSize="20sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnEnterRoom"
+            style="@style/btn_login_reg"
+            android:text="Enter Room"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnSignout"
+            style="@style/btn_login_reg"
+            android:text="Sign out"/>
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
