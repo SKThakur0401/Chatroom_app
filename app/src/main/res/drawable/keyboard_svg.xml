@@ -1,0 +1,23 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 64 64"
+    width="64"
+    height="64"
+    fill="#000000">
+    <!-- Outer rectangle for the keyboard -->
+    <rect x="4" y="16" width="56" height="32" rx="4" fill="#CCCCCC" />
+    <!-- Row 1 of keys -->
+    <rect x="10" y="22" width="6" height="6" rx="1" fill="#FFFFFF" />
+    <rect x="18" y="22" width="6" height="6" rx="1" fill="#FFFFFF" />
+    <rect x="26" y="22" width="6" height="6" rx="1" fill="#FFFFFF" />
+    <rect x="34" y="22" width="6" height="6" rx="1" fill="#FFFFFF" />
+    <rect x="42" y="22" width="6" height="6" rx="1" fill="#FFFFFF" />
+    <!-- Row 2 of keys -->
+    <rect x="12" y="30" width="6" height="6" rx="1" fill="#FFFFFF" />
+    <rect x="20" y="30" width="6" height="6" rx="1" fill="#FFFFFF" />
+    <rect x="28" y="30" width="6" height="6" rx="1" fill="#FFFFFF" />
+    <rect x="36" y="30" width="6" height="6" rx="1" fill="#FFFFFF" />
+    <rect x="44" y="30" width="6" height="6" rx="1" fill="#FFFFFF" />
+    <!-- Space bar -->
+    <rect x="16" y="38" width="32" height="6" rx="2" fill="#FFFFFF" />
+</svg>
