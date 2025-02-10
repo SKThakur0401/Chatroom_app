@@ -6,10 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.a20_firebase_basic_chatroom.R
 import com.example.a20_firebase_basic_chatroom.applicationLevelFiles.TokenManager
 import com.example.a20_firebase_basic_chatroom.databinding.FragmentEnterRoomIDBinding
+import com.example.a20_firebase_basic_chatroom.ui.viewModels.AuthViewModel
 import com.example.a20_firebase_basic_chatroom.utils.Constants.ROOM_ID
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -19,6 +21,8 @@ class EnterRoomID : Fragment() {
 
     @Inject
     lateinit var tokenManager: TokenManager
+
+    lateinit var authViewModel: AuthViewModel
 
     private lateinit var binding: FragmentEnterRoomIDBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +40,7 @@ class EnterRoomID : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        authViewModel = ViewModelProvider(this)[AuthViewModel::class.java]
         listener()
     }
 
@@ -65,7 +69,8 @@ class EnterRoomID : Fragment() {
         }
 
         binding.btnSignout.setOnClickListener {
-            tokenManager.signOut()
+
+            authViewModel.signOut()
             findNavController().navigate(R.id.action_enterRoomID_to_signupFragment)
         }
     }

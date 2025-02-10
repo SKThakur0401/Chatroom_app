@@ -37,9 +37,20 @@ class AuthRepository @Inject constructor() {
             .addOnCompleteListener { task->
                 if(task.isSuccessful){
                     val firebaseUser = task.result.user!!
-                    val user = User(firebaseUser.uid, firebaseUser.email)
-                    tokenManager.saveUser(user)
-                    _loginLiveData.value = NetworkResult.Success(user)
+
+                    val dbRef = firebaseDb.getReference("Users").child(firebaseUser.uid)
+                    dbRef.get().addOnSuccessListener { snapshot ->
+                        if (snapshot.exists()) {
+                            val user = snapshot.getValue(User::class.java)!!
+                            tokenManager.saveUser(user)
+                            _loginLiveData.value = NetworkResult.Success(user)
+
+                        } else {
+                            println("User not found!")
+                        }
+                    }.addOnFailureListener {
+                        println("Failed to fetch user data: ${it.message}")
+                    }
                 } else{
                     _loginLiveData.value = NetworkResult.Error(msg = task.exception?.message.toString())
                 }
@@ -90,5 +101,9 @@ class AuthRepository @Inject constructor() {
 
     fun isUserLoggedIn(): Boolean {
         return firebaseAuth.currentUser != null
+    }
+
+    fun signoutUser() {
+        firebaseAuth.signOut()
     }
 }

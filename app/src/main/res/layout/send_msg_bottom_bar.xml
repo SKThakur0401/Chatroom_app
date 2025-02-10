@@ -18,6 +18,8 @@
         android:drawablePadding="4dp"
         android:hint="@string/type_a_message"
         android:padding="10dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:singleLine="true"
         android:textColor="@color/Black_4"
         android:textColorHint="@color/Black_7"

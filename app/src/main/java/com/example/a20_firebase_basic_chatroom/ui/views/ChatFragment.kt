@@ -1,12 +1,14 @@
 package com.example.a20_firebase_basic_chatroom.ui.views
 
 import android.annotation.SuppressLint
+import android.graphics.Rect
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.a20_firebase_basic_chatroom.R
 import com.example.a20_firebase_basic_chatroom.applicationLevelFiles.TokenManager
@@ -45,6 +47,7 @@ class ChatFragment : Fragment() {
         return binding.root
     }
 
+
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -63,6 +66,16 @@ class ChatFragment : Fragment() {
 
         binding.includeTopBar.tvRoomId.text = "Room- ${roomID ?: "Unknown Room"}"
         listener()
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                binding.rvChat.post {
+                    binding.rvChat.scrollToPosition(adapter.itemCount - 1)
+                }
+                isEnabled = false
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
+        })
     }
 
     private fun listener(){
@@ -70,10 +83,18 @@ class ChatFragment : Fragment() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val message = snapshot.children.map { it.getValue(Message::class.java) }
 
-                if(message.isNotEmpty())
+                if (message.isNotEmpty()) {
+                    val oldLastMessagePosition = adapter.itemCount - 1
+
                     adapter.submitList(message) {
                         binding.rvChat.scrollToPosition(adapter.itemCount - 1)
+
+                        // Ensure previous last message updates
+                        if (oldLastMessagePosition >= 0) {
+                            adapter.notifyItemChanged(oldLastMessagePosition)
+                        }
                     }
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -100,6 +121,8 @@ class ChatFragment : Fragment() {
 
             binding.includeTextSender.etTypeMessage.text.clear()
         }
+
     }
+
 }
 
