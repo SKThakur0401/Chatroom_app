@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.a20_firebase_basic_chatroom.R
 import com.example.a20_firebase_basic_chatroom.applicationLevelFiles.TokenManager
+import com.example.a20_firebase_basic_chatroom.data.api.messagesDao
 import com.example.a20_firebase_basic_chatroom.data.dataModels.Message
 import com.example.a20_firebase_basic_chatroom.data.dataModels.User
 import com.example.a20_firebase_basic_chatroom.databinding.FragmentChatBinding
@@ -34,6 +35,9 @@ class ChatFragment : Fragment() {
     @Inject
     lateinit var tokenManager: TokenManager
 
+    @Inject
+    lateinit var dao : messagesDao
+
     private lateinit var adapter : ChatAdapter
 
     override fun onCreateView(
@@ -45,41 +49,61 @@ class ChatFragment : Fragment() {
         return binding.root
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        initView()
+        setupAdapter()
+        listener()
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun initView(){
         user = tokenManager.getUser()!!
         roomID = arguments?.getString(ROOM_ID)
         roomID?.let {roomID ->
             chatroomRef = FirebaseDatabase.getInstance().getReference("Chats").child(roomID)
         }
+        binding.includeTopBar.tvRoomId.text = "Room- ${roomID ?: "Unknown Room"}"
+    }
 
+    private fun setupAdapter(){
         adapter = tokenManager.getUser()!!.userId?.let { ChatAdapter(it) }!!
         binding.rvChat.adapter = adapter
         binding.rvChat.layoutManager = LinearLayoutManager(requireContext()).apply {
             stackFromEnd = true
         }
-
-        binding.includeTopBar.tvRoomId.text = "Room- ${roomID ?: "Unknown Room"}"
-        listener()
     }
 
     private fun listener(){
-        chatroomRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val message = snapshot.children.map { it.getValue(Message::class.java) }
+//        chatroomRef.addValueEventListener(object : ValueEventListener {
+//            override fun onDataChange(snapshot: DataSnapshot) {
+//                val message = snapshot.children.map { it.getValue(Message::class.java) }
+//
+//                if(message.isNotEmpty())
+//                    adapter.submitList(message) {
+//                        binding.rvChat.scrollToPosition(adapter.itemCount - 1)
+//                    }
+//            }
+//
+//            override fun onCancelled(error: DatabaseError) {
+//                Toast.makeText(context, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+//            }
+//        })
 
-                if(message.isNotEmpty())
-                    adapter.submitList(message) {
-                        binding.rvChat.scrollToPosition(adapter.itemCount - 1)
-                    }
+        dao.getChatsForThisRoom(roomID!!).observe(viewLifecycleOwner){response->
+
+            val oldLastMessagePosition = adapter.itemCount - 1
+
+            adapter.submitList(response) {
+                binding.rvChat.scrollToPosition(adapter.itemCount - 1)
             }
 
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(context, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+            // Ensure previous last message updates
+            if (oldLastMessagePosition >= 0) {
+                adapter.notifyItemChanged(oldLastMessagePosition)
             }
-        })
+        }
 
         binding.includeTextSender.btnSendMsg.setOnClickListener {
             val text = binding.includeTextSender.etTypeMessage.text.toString()      // here "text" will have the text msg
@@ -94,6 +118,7 @@ class ChatFragment : Fragment() {
                     )
                 } }
                 chatroomRef.child(messageId).setValue(msg)
+
             } ?: run {
                 Toast.makeText(requireContext(), "Error sending message", Toast.LENGTH_SHORT).show()
             }
