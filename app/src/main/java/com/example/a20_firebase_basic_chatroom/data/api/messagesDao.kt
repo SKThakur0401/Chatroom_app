@@ -11,8 +11,17 @@ import com.example.a20_firebase_basic_chatroom.data.dataModels.Message
 interface messagesDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertChat(message: Message)
+    fun insertMessage(message: Message)
 
-    @Query("SELECT * FROM messages WHERE roomId = :roomId ORDER BY timestamp DESC")
-    fun getChatsForThisRoom(roomId: String, limit: Int?=null) : LiveData<List<Message>>
+    @Query("SELECT * FROM messages WHERE roomId = :roomId ORDER BY timestamp ASC")
+    fun getChatsForThisRoom(roomId: String) : LiveData<List<Message>>
+
+    @Query("SELECT COUNT(*) FROM messages WHERE roomId = :roomId")
+    fun hasMessages(roomId: String): Long
+
+    @Query("SELECT MAX(timestamp) FROM messages WHERE roomId = :roomId")
+    fun getLatestMessageTimestamp(roomId: String): Long?
+
+    @Query("DELETE FROM messages")
+    fun clearAllMessages()
 }

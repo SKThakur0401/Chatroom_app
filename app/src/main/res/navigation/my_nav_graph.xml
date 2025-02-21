@@ -56,6 +56,8 @@
         tools:layout="@layout/fragment_chat" >
         <action
             android:id="@+id/action_chatFragment_to_enterRoomID"
-            app:destination="@id/enterRoomID" />
+            app:destination="@id/enterRoomID"
+            app:popUpTo="@id/chatFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

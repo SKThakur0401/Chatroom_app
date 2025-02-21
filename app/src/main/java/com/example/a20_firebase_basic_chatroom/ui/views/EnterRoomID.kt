@@ -6,12 +6,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.a20_firebase_basic_chatroom.R
 import com.example.a20_firebase_basic_chatroom.applicationLevelFiles.TokenManager
+import com.example.a20_firebase_basic_chatroom.data.api.messagesDao
 import com.example.a20_firebase_basic_chatroom.databinding.FragmentEnterRoomIDBinding
 import com.example.a20_firebase_basic_chatroom.utils.Constants.ROOM_ID
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -19,6 +24,9 @@ class EnterRoomID : Fragment() {
 
     @Inject
     lateinit var tokenManager: TokenManager
+
+    @Inject
+    lateinit var dao : messagesDao
 
     private lateinit var binding: FragmentEnterRoomIDBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,7 +74,15 @@ class EnterRoomID : Fragment() {
 
         binding.btnSignout.setOnClickListener {
             tokenManager.signOut()
-            findNavController().navigate(R.id.action_enterRoomID_to_signupFragment)
+
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    dao.clearAllMessages() // Ensures database is cleared first
+                }
+
+                // Now navigate after RoomDB is cleared
+                findNavController().navigate(R.id.action_enterRoomID_to_signupFragment)
+            }
         }
     }
 

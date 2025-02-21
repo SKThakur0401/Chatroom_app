@@ -1,6 +1,7 @@
 package com.example.a20_firebase_basic_chatroom.ui.views
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
+import com.example.a20_firebase_basic_chatroom.R
 import com.example.a20_firebase_basic_chatroom.data.dataModels.Message
 import com.example.a20_firebase_basic_chatroom.databinding.ChatMsgItemBinding
 import com.example.a20_firebase_basic_chatroom.databinding.ChatMsgItemOutgoingBinding
@@ -19,20 +21,16 @@ import com.example.a20_firebase_basic_chatroom.utils.Constants.SINGLE_MSG
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.absoluteValue
 
 class ChatAdapter(private val currentUserId: String) :
     ListAdapter<Message, ChatAdapter.ChatAdapterViewHolder>(DiffUtil()) {
-
-    var prevMsg: Message? = null
-    private var nextMsg: Message? = null
-    var msgRelativePosition = SINGLE_MSG
-
 
     inner class ChatAdapterViewHolder(private val binding: ViewBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         @SuppressLint("SetTextI18n")
-        fun bind(message: Message) {
+        fun bind(message: Message, msgRelativePosition: Int) {
 
             val formattedDate = formatTimestamp(message.timestamp)
 
@@ -46,8 +44,36 @@ class ChatAdapter(private val currentUserId: String) :
                         if(msgRelativePosition == SINGLE_MSG || msgRelativePosition == FIRST_MSG){
                             tvSenderName.text = message.senderName
                             tvSenderName.visibility = View.VISIBLE
+                            tvSenderName.setTextColor(getSenderColor(message.senderId))
                         } else {
                             tvSenderName.visibility = View.GONE
+                        }
+
+                        val rootLayoutParams = root.layoutParams as ViewGroup.MarginLayoutParams
+
+                        fun dpToPx(dp: Int): Int {
+                            val scale = root.context.resources.displayMetrics.density
+                            return (dp * scale + 0.5f).toInt()
+                        }
+
+                        when(msgRelativePosition){
+                            FIRST_MSG -> {
+                                viewIncomingMsgs.setBackgroundResource(R.drawable.bubble_first_msg_grey_left)
+                                rootLayoutParams.topMargin = dpToPx(8)  // Extra margin for entire item
+                            }
+                            MIDDLE_MSG -> {
+                                viewIncomingMsgs.setBackgroundResource(R.drawable.bubble_middle_msg_grey_left)
+                                rootLayoutParams.topMargin = dpToPx(0)  // Extra margin for entire item
+
+                            }
+                            LAST_MSG -> {
+                                viewIncomingMsgs.setBackgroundResource(R.drawable.bubble_last_msg_grey_left)
+                                rootLayoutParams.topMargin = dpToPx(0)  // Extra margin for entire item
+                            }
+                            SINGLE_MSG -> {
+                                viewIncomingMsgs.setBackgroundResource(R.drawable.bubble_single_msg_grey)
+                                rootLayoutParams.topMargin = dpToPx(8)  // Extra margin for entire item
+                            }
                         }
                     }
                 }
@@ -62,6 +88,32 @@ class ChatAdapter(private val currentUserId: String) :
                             tvSenderNameOutgoing.visibility = View.VISIBLE
                         } else {
                             tvSenderNameOutgoing.visibility = View.GONE
+                        }
+
+                        val rootLayoutParams = root.layoutParams as ViewGroup.MarginLayoutParams
+
+                        fun dpToPx(dp: Int): Int {
+                            val scale = root.context.resources.displayMetrics.density
+                            return (dp * scale + 0.5f).toInt()
+                        }
+
+                        when (msgRelativePosition) {
+                            FIRST_MSG -> {
+                                viewOutgoingMsgs.setBackgroundResource(R.drawable.bubble_first_msg_blue)
+                                rootLayoutParams.topMargin = dpToPx(8)  // Extra margin for entire item
+                            }
+                            MIDDLE_MSG -> {
+                                viewOutgoingMsgs.setBackgroundResource(R.drawable.bubble_middle_msg_blue)
+                                rootLayoutParams.topMargin = dpToPx(0)  // Extra margin for entire item
+                            }
+                            LAST_MSG -> {
+                                viewOutgoingMsgs.setBackgroundResource(R.drawable.bubble_last_msg_blue)
+                                rootLayoutParams.topMargin = dpToPx(0)  // Extra margin for entire item
+                            }
+                            SINGLE_MSG -> {
+                                viewOutgoingMsgs.setBackgroundResource(R.drawable.bubble_single_msg_blue)
+                                rootLayoutParams.topMargin = dpToPx(8)  // Extra margin for entire item
+                            }
                         }
                     }
                 }
@@ -79,15 +131,15 @@ class ChatAdapter(private val currentUserId: String) :
     }
 
     override fun onBindViewHolder(holder: ChatAdapterViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val message = getItem(position)
+        val prevMsg = if (position > 0) getItem(position - 1) else null
+        val nextMsg = if (position < itemCount - 1) getItem(position + 1) else null
+        val msgRelativePosition = setPosition(message, prevMsg, nextMsg)
+        holder.bind(getItem(position), msgRelativePosition)
     }
 
     override fun getItemViewType(position: Int): Int {
         val message = getItem(position)
-        prevMsg = if (position > 0) getItem(position - 1) else null
-        nextMsg = if (position < itemCount - 1) getItem(position + 1) else null
-
-        msgRelativePosition = setPosition(message)
 
         return if (message.senderId == currentUserId) {
             VIEW_TYPE_OUTGOING
@@ -96,7 +148,7 @@ class ChatAdapter(private val currentUserId: String) :
         }
     }
 
-    fun setPosition(message: Message): Int{
+    fun setPosition(message: Message, prevMsg:Message?, nextMsg:Message?): Int{
 
         val isPrevMsgBySameSender = prevMsg?.let {
             it.senderId == message.senderId
@@ -136,5 +188,18 @@ class ChatAdapter(private val currentUserId: String) :
     companion object {
         private const val VIEW_TYPE_INCOMING = 1
         private const val VIEW_TYPE_OUTGOING = 2
+    }
+
+    val senderColors = listOf(
+        Color.parseColor("#137333"), // Dark Green
+        Color.parseColor("#174EA6"), // Dark Blue
+        Color.parseColor("#B06000"), // Dark Orange
+        Color.parseColor("#5E35B1"), // Dark Purple
+        Color.parseColor("#C5221F")  // Dark Red
+    )
+
+    fun getSenderColor(userId: String?): Int {
+        val index = userId.hashCode().absoluteValue % senderColors.size
+        return senderColors[index]
     }
 }
