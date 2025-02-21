@@ -63,4 +63,9 @@ dependencies {
     kapt(libs.dagger.hilt.compiler)
     implementation(libs.dagger.hilt.android) // Hilt runtime
     implementation(libs.kotlinx.serialization.json)
+
+    // room-db
+    implementation(libs.room.runtime)
+    kapt(libs.room.compiler)
+    implementation(libs.room.ktx)
 }

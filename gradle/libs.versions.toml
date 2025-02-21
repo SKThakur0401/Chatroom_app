@@ -16,7 +16,7 @@ navigationUiKtx = "2.8.5" # Replace with the latest version of the Firebase BOM
 hiltVersion = "2.48"
 kotlinx-serialization = "1.6.3"
 databindingRuntime = "8.7.3"
-firebaseAuth = "23.2.0"
+room = "2.5.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -36,6 +36,9 @@ dagger-hilt-android = { group = "com.google.dagger", name = "hilt-android", vers
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 androidx-databinding-runtime = { group = "androidx.databinding", name = "databinding-runtime", version.ref = "databindingRuntime" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth"}
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -44,3 +47,4 @@ google-gms-google-services = { id = "com.google.gms.google-services", version.re
 dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt"}
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+room = { id = "androidx.room", version.ref = "room" }
