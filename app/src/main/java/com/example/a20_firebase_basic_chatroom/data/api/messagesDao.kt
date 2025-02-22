@@ -13,15 +13,24 @@ interface messagesDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMessage(message: Message)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertMessageList(messages: List<Message>)
+
     @Query("SELECT * FROM messages WHERE roomId = :roomId ORDER BY timestamp ASC")
     fun getChatsForThisRoom(roomId: String) : LiveData<List<Message>>
 
-    @Query("SELECT COUNT(*) FROM messages WHERE roomId = :roomId")
-    fun hasMessages(roomId: String): Long
-
-    @Query("SELECT MAX(timestamp) FROM messages WHERE roomId = :roomId")
-    fun getLatestMessageTimestamp(roomId: String): Long?
-
     @Query("DELETE FROM messages")
     fun clearAllMessages()
+
+
+    // Below function is used when user enters a group-chat, it checks timestamp of last message
+    // in Room-db from this group, if no message from this group is in room-db, it returns "0" using "COALESCE"
+    @Query("SELECT COALESCE(MAX(timestamp), 0) FROM messages WHERE roomId = :roomId")
+    fun getLatestMsgTimestampOrZero(roomId: String): Long
+
+    @Query("SELECT * FROM messages WHERE roomId = :roomId ORDER BY timestamp DESC LIMIT :limit OFFSET :offset")
+    suspend fun getPagedChatsForRoom(roomId: String, limit: Int, offset: Int): List<Message>
+
+    @Query("SELECT COUNT(*) FROM messages WHERE roomId = :roomId")
+    suspend fun getMessageCount(roomId: String): Int
 }

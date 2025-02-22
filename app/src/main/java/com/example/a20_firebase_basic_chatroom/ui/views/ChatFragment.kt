@@ -18,6 +18,7 @@ import com.example.a20_firebase_basic_chatroom.data.dataModels.Message
 import com.example.a20_firebase_basic_chatroom.data.dataModels.User
 import com.example.a20_firebase_basic_chatroom.databinding.FragmentChatBinding
 import com.example.a20_firebase_basic_chatroom.utils.Constants.ROOM_ID
+import com.google.firebase.Timestamp
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -81,20 +82,15 @@ class ChatFragment : Fragment() {
         binding.rvChat.layoutManager = LinearLayoutManager(requireContext()).apply {
             stackFromEnd = true
         }
-
     }
 
 
     private fun listener(){
 
-        // Fetch old messages from Firebase only if Room is empty
+        // Fetch messages from firebase (Fetch only messages sent which are after last message in room-db)
         lifecycleScope.launch(Dispatchers.IO) {
-            val hasLocalMessages = dao.hasMessages(roomID!!) // Check if RoomDB has messages
-            if (hasLocalMessages == 0L) {
-                fetchAllMessagesFromFirebase() // ✅ First-time entry
-            } else {
-                fetchNewMessagesFromFirebase() // ✅ When coming online after being offline
-            }
+            val timeStampOfLastMsgInRoom = dao.getLatestMsgTimestampOrZero(roomID!!)        // It returns timestamp of last message in that group which is present in room-db
+            fetchAllMessagesFromFirebasePostThisTimestamp(timeStampOfLastMsgInRoom)         // We need to fetch messages from firebase, beyond that timestamp
         }
 
         // Listen to Firebase Realtime Database for new messages & update RoomDB
@@ -119,18 +115,22 @@ class ChatFragment : Fragment() {
             override fun onCancelled(error: DatabaseError) {}
         })
 
+
         dao.getChatsForThisRoom(roomID!!).observe(viewLifecycleOwner){response->
 
             val oldLastMessagePosition = adapter.itemCount - 1
 
             adapter.submitList(response) {
                 binding.rvChat.scrollToPosition(adapter.itemCount - 1)
-            }
 
-            if (oldLastMessagePosition >= 0 && oldLastMessagePosition < adapter.itemCount) {
-                adapter.notifyItemChanged(oldLastMessagePosition)  // Update previous last message bubble
+                // Ensure previous last message updates (To update the chat bubble of previous message
+                if (oldLastMessagePosition >= 0) {
+                    adapter.notifyItemChanged(oldLastMessagePosition)
+                }
             }
         }
+
+
 
 
         binding.includeTextSender.btnSendMsg.setOnClickListener {
@@ -160,35 +160,9 @@ class ChatFragment : Fragment() {
     }
 
 
-    private fun fetchAllMessagesFromFirebase() {
-        chatroomRef.orderByChild("timestamp").addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val messages = mutableListOf<Message>()
-                for (child in snapshot.children) {
-                    val msg = child.getValue(Message::class.java)
-                    if(msg?.roomId == null){
-                        msg?.roomId = roomID
-                    }
-                    msg?.let { messages.add(it) }
-                }
-
-                // Insert all fetched messages into RoomDB
-                lifecycleScope.launch(Dispatchers.IO) {
-                    for(message in messages){
-                        dao.insertMessage(message)
-                    }
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {}
-        })
-    }
-
-    private fun fetchNewMessagesFromFirebase() {
+    private fun fetchAllMessagesFromFirebasePostThisTimestamp(timestamp: Long) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val latestTimestamp = dao.getLatestMessageTimestamp(roomID!!) ?: 0L
-
-            chatroomRef.orderByChild("timestamp").startAfter(latestTimestamp.toDouble())
+            chatroomRef.orderByChild("timestamp").startAfter(timestamp.toDouble())
                 .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val messages = mutableListOf<Message>()
@@ -202,9 +176,7 @@ class ChatFragment : Fragment() {
 
                         // Insert new messages into RoomDB
                         lifecycleScope.launch(Dispatchers.IO) {
-                            for(message in messages){
-                                dao.insertMessage(message)
-                            }
+                            dao.insertMessageList(messages)
                         }
                     }
 
