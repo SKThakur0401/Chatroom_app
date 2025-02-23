@@ -29,8 +29,8 @@ interface messagesDao {
     fun getLatestMsgTimestampOrZero(roomId: String): Long
 
     @Query("SELECT * FROM messages WHERE roomId = :roomId ORDER BY timestamp DESC LIMIT :limit OFFSET :offset")
-    suspend fun getPagedChatsForRoom(roomId: String, limit: Int, offset: Int): List<Message>
+    fun getPagedChatsForRoom(roomId: String, limit: Int, offset: Int): List<Message>
 
     @Query("SELECT COUNT(*) FROM messages WHERE roomId = :roomId")
-    suspend fun getMessageCount(roomId: String): Int
+    fun getMessageCount(roomId: String): Int
 }

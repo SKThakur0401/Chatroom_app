@@ -163,8 +163,8 @@ class ChatAdapter(private val currentUserId: String) :
 
         return when{
             isPrevMsgBySameSender && isNextMsgBySameSender -> MIDDLE_MSG
-            isPrevMsgBySameSender -> LAST_MSG
-            isNextMsgBySameSender -> FIRST_MSG
+            isPrevMsgBySameSender -> /*LAST_MSG*/FIRST_MSG
+            isNextMsgBySameSender -> /*FIRST_MSG*/LAST_MSG
             else -> SINGLE_MSG
         }
     }

@@ -9,14 +9,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.a20_firebase_basic_chatroom.R
 import com.example.a20_firebase_basic_chatroom.applicationLevelFiles.TokenManager
 import com.example.a20_firebase_basic_chatroom.data.api.messagesDao
 import com.example.a20_firebase_basic_chatroom.data.dataModels.Message
 import com.example.a20_firebase_basic_chatroom.data.dataModels.User
 import com.example.a20_firebase_basic_chatroom.databinding.FragmentChatBinding
+import com.example.a20_firebase_basic_chatroom.ui.viewModels.ChatViewModel
 import com.example.a20_firebase_basic_chatroom.utils.Constants.ROOM_ID
 import com.google.firebase.Timestamp
 import com.google.firebase.database.ChildEventListener
@@ -35,6 +38,9 @@ class ChatFragment : Fragment() {
 
     private lateinit var binding : FragmentChatBinding
     private lateinit var chatroomRef : DatabaseReference
+    private val viewModel: ChatViewModel by viewModels()
+
+    var isNewMsg = true
     private var roomID :String? = null
     lateinit var user : User            // Here "user" will be the current user, the person who is
                                 // using this account, in this object we'll store user's name, id, etc..
@@ -64,6 +70,7 @@ class ChatFragment : Fragment() {
         initView()
         setupAdapter()
         listener()
+        setupScrollListener()
     }
 
     @SuppressLint("SetTextI18n")
@@ -76,11 +83,20 @@ class ChatFragment : Fragment() {
         binding.includeTopBar.tvRoomId.text = "Room- ${roomID ?: "Unknown Room"}"
     }
 
-    private fun setupAdapter(){
+/*    private fun setupAdapter(){
         adapter = tokenManager.getUser()!!.userId?.let { ChatAdapter(it) }!!
         binding.rvChat.adapter = adapter
         binding.rvChat.layoutManager = LinearLayoutManager(requireContext()).apply {
             stackFromEnd = true
+        }
+    }*/
+
+    private fun setupAdapter() {
+        adapter = tokenManager.getUser()!!.userId?.let { ChatAdapter(it) }!!
+        binding.rvChat.adapter = adapter
+        binding.rvChat.layoutManager = LinearLayoutManager(requireContext()).apply {
+            stackFromEnd = true
+            reverseLayout = true  // Reverse layout for better pagination
         }
     }
 
@@ -88,7 +104,7 @@ class ChatFragment : Fragment() {
     private fun listener(){
 
         // Fetch messages from firebase (Fetch only messages sent which are after last message in room-db)
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch (Dispatchers.IO) {
             val timeStampOfLastMsgInRoom = dao.getLatestMsgTimestampOrZero(roomID!!)        // It returns timestamp of last message in that group which is present in room-db
             fetchAllMessagesFromFirebasePostThisTimestamp(timeStampOfLastMsgInRoom)         // We need to fetch messages from firebase, beyond that timestamp
         }
@@ -104,6 +120,11 @@ class ChatFragment : Fragment() {
                         if(it.roomId == null) it.roomId = roomID
 
                         dao.insertMessage(it) // Insert message into Room when it arrives from Firebase
+
+                        val currentMessages = viewModel._messages.value ?: emptyList()
+
+                        viewModel._messages.postValue(listOf(it) + currentMessages)
+                        isNewMsg=true
                         Log.d("skt", it.toString())
                     }
                 }
@@ -116,6 +137,7 @@ class ChatFragment : Fragment() {
         })
 
 
+/*
         dao.getChatsForThisRoom(roomID!!).observe(viewLifecycleOwner){response->
 
             val oldLastMessagePosition = adapter.itemCount - 1
@@ -129,7 +151,25 @@ class ChatFragment : Fragment() {
                 }
             }
         }
+*/
 
+
+        viewModel.messages.observe(viewLifecycleOwner) { messages ->
+//            val oldLastMessagePosition = adapter.itemCount - 1
+
+            adapter.submitList(messages) {
+                // Only scroll to bottom for new messages, not loaded old ones
+                if (viewModel.currentPage <= 1 || messages.size > adapter.itemCount || isNewMsg) {
+                    binding.rvChat.scrollToPosition(0)
+                    isNewMsg = false
+                }
+
+                // Update previous last message bubble
+                if (adapter.itemCount > 1) {
+                    adapter.notifyItemChanged(1)
+                }
+            }
+        }
 
 
 
@@ -145,11 +185,7 @@ class ChatFragment : Fragment() {
                         senderName, roomID
                     )
                 } }
-                chatroomRef.child(messageId).setValue(msg).addOnSuccessListener {
-//                    lifecycleScope.launch(Dispatchers.IO) {
-//                        dao.insertMessage(msg!!)
-//                    }
-                }
+                chatroomRef.child(messageId).setValue(msg)
 
             } ?: run {
                 Toast.makeText(requireContext(), "Error sending message", Toast.LENGTH_SHORT).show()
@@ -175,19 +211,47 @@ class ChatFragment : Fragment() {
                         }
 
                         // Insert new messages into RoomDB
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            dao.insertMessageList(messages)
+                        if(messages.isNotEmpty()){
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                dao.insertMessageList(messages)
+                            }
                         }
                     }
 
                     override fun onCancelled(error: DatabaseError) {}
                 })
+
+
+//            lifecycleScope.launch(Dispatchers.IO) {
+//                viewModel.loadMoreMessages(roomID!!)
+//            }
+            viewModel.initializeChat(roomID!!)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         messagesListener?.let { chatroomRef.removeEventListener(it) }
+    }
+
+    private fun setupScrollListener() {
+        binding.rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+
+                // Load more when user scrolls near the top (since layout is reversed)
+                if (firstVisibleItem + visibleItemCount >= totalItemCount - 10) {
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        viewModel.loadMoreMessages(roomID!!)
+                    }
+                }
+            }
+        })
     }
 }
 
